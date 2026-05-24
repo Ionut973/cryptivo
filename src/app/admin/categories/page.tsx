@@ -30,7 +30,7 @@ export default async function AdminCategoriesPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const mainCategories = categories.filter((cat) => !cat.parentId);
+  const mainCategories = categories.filter((cat: any) => !cat.parentId);
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-20 text-white">
