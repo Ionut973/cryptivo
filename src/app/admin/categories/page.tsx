@@ -43,7 +43,7 @@ export default async function AdminCategoriesPage() {
         <AdminCategoryForm categories={categories} />
 
         <div className="mt-10 space-y-5">
-          {mainCategories.map((category) => (
+          {mainCategories.map((category: any) =>(
             
             <div
               key={category.id}
@@ -63,7 +63,7 @@ export default async function AdminCategoriesPage() {
                 {category.children.length === 0 ? (
                   <p className="text-sm text-zinc-500">No subcategories</p>
                 ) : (
-                  category.children.map((child) => (
+                  category.children.map((child: any) => (
                     <div
                       key={child.id}
                       className="rounded-2xl border border-zinc-800 bg-black p-4"
