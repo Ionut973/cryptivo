@@ -1,20 +1,7 @@
 "use client";
 import WelcomeDealButton from "@/components/WelcomeDealButton";
 
-type Product = {
-  id: string;
-  nameEn: string;
-  price: number;
-  stock: number;
-  categoryId: string | null;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  } | null;
-  isWelcomeDeal: boolean;
-  welcomeDiscount: number;
-};
+type Product = any;
 
 export default function AdminProductList({
   products,

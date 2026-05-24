@@ -5,7 +5,7 @@ import AdminProductForm from "@/components/AdminProductForm";
 import { prisma } from "@/lib/prisma";
 import AdminProductList from "@/components/AdminProductList";
 import AdminCampaignForm from "@/components/AdminCampaignForm";
-import CancelOrderButton from "@/components/CancelOrderButton";
+
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
@@ -20,7 +20,9 @@ export default async function AdminPage() {
   include: {
     category: true,
   },
-  orderBy: { createdAt: "desc" },
+  orderBy: {
+    createdAt: "desc",
+  },
 });
     const categories = await prisma.category.findMany({
   orderBy: { name: "asc" },
