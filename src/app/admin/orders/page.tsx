@@ -79,7 +79,7 @@ export default async function AdminOrdersPage() {
           </div>
         ) : (
           <div className="relative mt-8 space-y-6">
-            {orders.map((order) => (
+            {orders.map((order: any) => (
               <div
                 key={order.id}
                 className="rounded-3xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl"
@@ -111,7 +111,7 @@ export default async function AdminOrdersPage() {
                 </div>
 
                 <div className="mt-5 grid gap-3">
-                  {order.items.map((item) => (
+                  {order.items.map((item: any) => (
                     <a
                       key={item.id}
                       href={`/product/${item.product.id}`}
