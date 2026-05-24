@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  favorites Favorite[]
+  cartItems CartItem[]
+  orders    Order[]
+  notifications Notification[]
+  loyaltyDiscount Int @default(0)
+  supportTickets SupportTicket[]
+
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  nameEn      String
+  nameRu      String
+  nameRo      String
+  descriptionEn String
+  descriptionRu String
+  descriptionRo String
+
+  descriptionShortEn String @default("")
+  descriptionShortRu String @default("")
+  descriptionShortRo String @default("")
+
+  descriptionFullEn String @default("")
+  descriptionFullRu String @default("")
+  descriptionFullRo String @default("")
+
+  imageUrls String[] @default([])
+  colors String[] @default([])
+
+  price       Float
+  size String?
+  imageUrl    String
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  stock       Int      @default(0)
+
+  isWelcomeDeal   Boolean @default(false)
+  welcomeDiscount Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  
+  favorites  Favorite[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+}
+
+model Favorite {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model CartItem {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int    @default(1)
+
+  color     String?
+  size      String?
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  @@unique([userId, productId])
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  userId         String
+  total          Float
+  status         OrderStatus @default(PENDING)
+  trackingCode   String?
+  trackingStatus String?
+  cancelReason String?
+  cancelledBy String?
+  createdAt      DateTime    @default(now())
+
+  deliveryType   String?
+  firstName      String?
+  lastName       String?
+  address1       String?
+  address2       String?
+  postcode       String?
+  phone          String?
+  telegram       String?
+  anonymousPlace String?
+
+  paymentMethod  String @default("CRYPTO")
+  paymentStatus  String @default("PENDING")
+  cryptoCurrency String @default("USDC")
+  cryptoNetwork  String @default("TRC20")
+  cryptoAddress  String?
+
+  user    User        @relation(fields: [userId], references: [id])
+  items   OrderItem[]
+  payment Payment?
+
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  color String?
+  size String?
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  orderId       String        @unique
+  amount        Float
+  currency      String        @default("USDT")
+  network       String?
+  walletAddress String?
+  txHash        String?
+  status        PaymentStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String?
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model EmailCampaign {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Discount {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  percent     Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(cuid())
+
+  name      String
+  nameEn    String?
+  nameRu    String?
+  nameRo    String?
+
+  slug      String   @unique
+  imageUrl  String?
+  parentId  String?
+
+  parent    Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryChildren")
+
+  products  Product[]
+
+  createdAt DateTime @default(now())
+}
+model SupportTicket {
+  id        String   @id @default(uuid())
+  userId    String
+  subject   String
+  message   String
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  replies SupportReply[]   // ← ВАЖНО
+}
+
+model SupportReply {
+  id        String   @id @default(uuid())
+  ticketId  String
+  sender    String
+  message   String
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id])
+
+}
+model EmailVerification {
+  id        String   @id @default(uuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
